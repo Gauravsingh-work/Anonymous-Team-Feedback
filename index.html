@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Anonymous Team Feedback</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    td, th {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    input {
+      width: 60px;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    input.error {
+      border: 2px solid red;
+      background-color: #fff0f0;
+    }
+    textarea {
+      width: 150px;
+      height: 40px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    textarea.error {
+      border: 2px solid red;
+      background-color: #fff0f0;
+    }
+    .error-msg {
+      color: red;
+      font-size: 11px;
+      display: block;
+      margin-top: 3px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #status {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Anonymous Team Feedback</h2>
+
+<table id="table">
+  <tr>
+    <th>Name</th>
+    <th>Team</th>
+    <th>Content</th>
+    <th>Ownership</th>
+    <th>Managerial</th>
+    <th>Culture</th>
+    <th>Review</th>
+  </tr>
+</table>
+
+<br>
+<center>
+  <button onclick="submitForm()">Submit</button>
+  <div id="status"></div>
+</center>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1iKsReOxzMXJokWBrbm-70ElSJKXThEJed1pm5DAL2FPReK3sMef7rb4pgsr6dDDl/exec";
+
+const names = [
+  "Sacheth Sanal","Khushbu","Sudhi Agarwal","Gaurav Singh","Anjali bakshi",
+  "Anmol Madan","Harshit Singh","Abhijith Jayasooryan","Ajit das","Anjali Pandey",
+  "Ankit Fulzele","Jaspreet Singh","Kiran Sawant","Mahima","Radhika Malani",
+  "Rahul Rajput","Mohammed Shafeequdin","Mananpreet","Kura Swapna"
+];
+
+const table = document.getElementById("table");
+
+// Create rows dynamically
+names.forEach(name => {
+  let row = document.createElement("tr");
+  row.innerHTML = `
+    <td>${name}</td>
+    <td><input type="number" min="1" max="5" oninput="clearError(this)"><span class="error-msg" style="display:none"></span></td>
+    <td><input type="number" min="1" max="5" oninput="clearError(this)"><span class="error-msg" style="display:none"></span></td>
+    <td><input type="number" min="1" max="5" oninput="clearError(this)"><span class="error-msg" style="display:none"></span></td>
+    <td><input type="number" min="1" max="5" oninput="clearError(this)"><span class="error-msg" style="display:none"></span></td>
+    <td><input type="number" min="1" max="5" oninput="clearError(this)"><span class="error-msg" style="display:none"></span></td>
+    <td><textarea placeholder="Only required if score < 3" oninput="clearError(this)"></textarea><span class="error-msg" style="display:none"></span></td>
+  `;
+  table.appendChild(row);
+});
+
+// Clear error styling when user starts typing
+function clearError(el) {
+  el.classList.remove("error");
+  const msg = el.parentElement.querySelector(".error-msg");
+  if (msg) {
+    msg.style.display = "none";
+    msg.innerText = "";
+  }
+}
+
+// Show error on a specific cell
+function showError(el, message) {
+  el.classList.add("error");
+  const msg = el.parentElement.querySelector(".error-msg");
+  if (msg) {
+    msg.innerText = message;
+    msg.style.display = "block";
+  }
+}
+
+function submitForm() {
+  let rows = document.querySelectorAll("#table tr");
+  let result = [];
+  let hasError = false;
+  const statusDiv = document.getElementById("status");
+  statusDiv.innerText = "";
+
+  // Clear all previous errors first
+  document.querySelectorAll("input.error, textarea.error").forEach(el => {
+    el.classList.remove("error");
+  });
+  document.querySelectorAll(".error-msg").forEach(el => {
+    el.style.display = "none";
+    el.innerText = "";
+  });
+
+  for (let i = 1; i < rows.length; i++) {
+    let cols = rows[i].querySelectorAll("td");
+
+    let name = cols[0].innerText;
+    let teamInput = cols[1].children[0];
+    let contentInput = cols[2].children[0];
+    let ownershipInput = cols[3].children[0];
+    let managerialInput = cols[4].children[0];
+    let cultureInput = cols[5].children[0];
+    let reviewInput = cols[6].children[0];
+
+    let team = +teamInput.value;
+    let content = +contentInput.value;
+    let ownership = +ownershipInput.value;
+    let managerial = +managerialInput.value;
+    let culture = +cultureInput.value;
+    let review = reviewInput.value;
+
+    const scoreFields = [
+      { input: teamInput, value: team },
+      { input: contentInput, value: content },
+      { input: ownershipInput, value: ownership },
+      { input: managerialInput, value: managerial },
+      { input: cultureInput, value: culture },
+    ];
+
+    // Validate each score field
+    scoreFields.forEach(({ input, value }) => {
+      if (!input.value || input.value === "") {
+        showError(input, "Required");
+        hasError = true;
+      } else if (value < 1 || value > 5) {
+        showError(input, "Enter 1 to 5");
+        hasError = true;
+      }
+    });
+
+    // Validate review if any score < 3
+    const values = scoreFields.map(f => f.value);
+    if (values.some(v => v < 3) && review.trim() === "") {
+      showError(reviewInput, "Required when score < 3");
+      hasError = true;
+    }
+
+    if (!hasError) {
+      result.push({ name, team, content, ownership, managerial, culture, review });
+    }
+  }
+
+  if (hasError) {
+    statusDiv.style.color = "red";
+    statusDiv.innerText = "⚠️ Please fix the errors highlighted in red above.";
+    return;
+  }
+
+  // Show sending state
+  statusDiv.style.color = "blue";
+  statusDiv.innerText = "⏳ Submitting... please wait";
+
+  // Send to Google Sheets
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "text/plain"
+    },
+    body: JSON.stringify(result)
+  })
+  .then(() => {
+    statusDiv.style.color = "green";
+    statusDiv.innerText = "✅ Submitted successfully! Thank you.";
+    setTimeout(() => {
+      location.reload();
+    }, 2000);
+  })
+  .catch(err => {
+    console.error(err);
+    statusDiv.style.color = "red";
+    statusDiv.innerText = "❌ Error submitting. Please try again.";
+  });
+}
+</script>
+
+</body>
+</html>
