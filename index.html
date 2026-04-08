@@ -74,12 +74,12 @@
 <table id="table">
   <tr>
     <th>Name</th>
-    <th>Team</th>
-    <th>Content</th>
+    <th>Team Coordination</th>
+    <th>Content & Tech</th>
     <th>Ownership</th>
     <th>Managerial</th>
-    <th>Culture</th>
-    <th>Review</th>
+    <th>Org Culture</th>
+    <th>Remarks</th>
   </tr>
 </table>
 
@@ -192,7 +192,7 @@ function submitForm() {
     // Validate review if any score < 3
     const values = scoreFields.map(f => f.value);
     if (values.some(v => v < 3) && review.trim() === "") {
-      showError(reviewInput, "Required when score < 3");
+      showError(reviewInput, "Mandatory");
       hasError = true;
     }
 
